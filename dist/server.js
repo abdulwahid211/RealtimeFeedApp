@@ -16,7 +16,7 @@
   \*****************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nconst graphql_yoga_1 = __webpack_require__(/*! graphql-yoga */ \"graphql-yoga\");\r\nconst cars_1 = __webpack_require__(/*! ./schema/cars */ \"./src/server/schema/cars.ts\");\r\nconst cars_2 = __webpack_require__(/*! ./resolvers/cars */ \"./src/server/resolvers/cars.ts\");\r\nconst PORT = 2000;\r\nconst users = [];\r\nconst server = new graphql_yoga_1.GraphQLServer({ typeDefs: cars_1.typeDefs, resolvers: cars_2.resolvers });\r\nconst options = {\r\n    port: PORT,\r\n};\r\nserver.start(options, ({ port }) => {\r\n    console.log(`Graphql Server started, listening on port ${port} for incoming requests.`);\r\n});\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/index.ts?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nconst graphql_yoga_1 = __webpack_require__(/*! graphql-yoga */ \"graphql-yoga\");\r\nconst cars_1 = __webpack_require__(/*! ./schema/cars */ \"./src/server/schema/cars.ts\");\r\nconst cars_2 = __webpack_require__(/*! ./resolvers/cars */ \"./src/server/resolvers/cars.ts\");\r\nconst PORT = 2000;\r\nconst pubsub = new graphql_yoga_1.PubSub();\r\nconst users = [];\r\nconst server = new graphql_yoga_1.GraphQLServer({ typeDefs: cars_1.typeDefs, resolvers: cars_2.resolvers, context: { pubsub } });\r\nconst options = {\r\n    port: PORT,\r\n};\r\nserver.start(options, ({ port }) => {\r\n    console.log(`Graphql Server started, listening on port  ${port} for incoming requests.`);\r\n});\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/index.ts?");
 
 /***/ }),
 
@@ -24,9 +24,9 @@ eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\n
 /*!**************************************!*\
   !*** ./src/server/resolvers/cars.ts ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\r\nvar __importDefault = (this && this.__importDefault) || function (mod) {\r\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\r\n};\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nexports.resolvers = void 0;\r\nconst jsonData_json_1 = __importDefault(__webpack_require__(/*! ../data/jsonData.json */ \"./src/server/data/jsonData.json\"));\r\nexports.resolvers = {\r\n    Query: {\r\n        getCar(parent, args) {\r\n            const id = parseInt(args.id, 10);\r\n            let car = jsonData_json_1.default[0];\r\n            for (var i = 0; i < jsonData_json_1.default.length; i++) {\r\n                if (id == jsonData_json_1.default[i].id) {\r\n                    car = jsonData_json_1.default[i];\r\n                }\r\n            }\r\n            if (car.id == id) {\r\n                return car;\r\n            }\r\n            else {\r\n                throw (\"No Car is found\");\r\n            }\r\n        },\r\n        getCars() { return jsonData_json_1.default; }\r\n    },\r\n    Mutation: {\r\n        createCar(parent, args) {\r\n            console.log(\"Output: \");\r\n            const car = Object.assign({}, args.input);\r\n            console.log(\"Output: \" + car.description);\r\n            jsonData_json_1.default.push(car);\r\n            return car;\r\n        }\r\n    }\r\n};\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/resolvers/cars.ts?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nexports.resolvers = void 0;\r\nconst Cars = __webpack_require__(/*! ../data/jsonData.json */ \"./src/server/data/jsonData.json\");\r\nconst graphql_yoga_1 = __webpack_require__(/*! graphql-yoga */ \"graphql-yoga\");\r\nconst pubsub = new graphql_yoga_1.PubSub();\r\nexports.resolvers = {\r\n    Query: {\r\n        getCar(parent, args) {\r\n            const id = parseInt(args.id, 10);\r\n            let car = Cars[0];\r\n            for (var i = 0; i < Cars.length; i++) {\r\n                if (id == Cars[i].id) {\r\n                    car = Cars[i];\r\n                }\r\n            }\r\n            if (car.id == id) {\r\n                return car;\r\n            }\r\n            else {\r\n                throw (\"No Car is found\");\r\n            }\r\n        },\r\n        getCars() {\r\n            pubsub.publish('getCars', {\r\n                getCars: {\r\n                    query: 'getCars',\r\n                    data: Cars\r\n                }\r\n            });\r\n            return Cars;\r\n        }\r\n    },\r\n    Mutation: {\r\n        createCar(parent, args) {\r\n            const car = Object.assign({}, args.input);\r\n            if (car != undefined) {\r\n                Cars.push(Object.assign({}, args.input));\r\n            }\r\n            pubsub.publish('car', {\r\n                car: {\r\n                    mutation: 'Added',\r\n                    data: car\r\n                }\r\n            });\r\n            return car;\r\n        }\r\n    },\r\n    Subscription: {\r\n        car: {\r\n            subscribe(parent, args) {\r\n                return pubsub.asyncIterator('car');\r\n            }\r\n        },\r\n        getCars: {\r\n            subscribe(parent, args) {\r\n                return pubsub.asyncIterator('getCars');\r\n            }\r\n        }\r\n    }\r\n};\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/resolvers/cars.ts?");
 
 /***/ }),
 
@@ -36,7 +36,7 @@ eval("\r\nvar __importDefault = (this && this.__importDefault) || function (mod)
   \***********************************/
 /***/ ((__unused_webpack_module, exports) => {
 
-eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nexports.typeDefs = void 0;\r\nexports.typeDefs = `\r\ninput CarInput {\r\n    name: String!\r\n    description: String!\r\n    value: Int!\r\n}\r\ntype Car {\r\n    id: Int!\r\n    name: String!\r\n    description: String!\r\n    value: Int!\r\n}\r\ntype Mutation {\r\n    createCar(input: CarInput): Car\r\n    updateCar(id: Int!, input: CarInput): Car\r\n}\r\ntype Query {\r\n    getCar(id: Int): Car\r\n    getCars: [Car]\r\n}\r\ntype Subscription {\r\n    getCars: [Car]\r\n}\r\n`;\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/schema/cars.ts?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\r\nexports.typeDefs = void 0;\r\nexports.typeDefs = `\r\ninput CarInput {\r\n    id: Int!\r\n    name: String!\r\n    description: String!\r\n    value: Int!\r\n}\r\ntype Car {\r\n    id: Int!\r\n    name: String!\r\n    description: String!\r\n    value: Int!\r\n}\r\ntype Mutation {\r\n    createCar(input: CarInput): Car!\r\n    updateCar(id: Int!, input: CarInput): Car!\r\n}\r\ntype Query {\r\n    getCar(id: Int): Car!\r\n    getCars: [Car!]!\r\n}\r\ntype CarSubscriptionMutation {\r\n    mutation: String!\r\n    data: Car!\r\n}\r\n\r\ntype CarSubscriptionQuery {\r\n    query: String!\r\n    data: [Car!]!\r\n}\r\ntype Subscription {\r\n    car: CarSubscriptionMutation!\r\n    getCars: CarSubscriptionQuery\r\n}\r\n\r\n`;\r\n\n\n//# sourceURL=webpack://realtimefeedapp/./src/server/schema/cars.ts?");
 
 /***/ }),
 
@@ -80,7 +80,7 @@ eval("module.exports = JSON.parse('[{\"id\":4,\"name\":\"At et magnam iusto reic
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;

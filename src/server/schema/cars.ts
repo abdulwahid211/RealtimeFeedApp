@@ -1,5 +1,6 @@
 export const typeDefs = `
 input CarInput {
+    id: Int!
     name: String!
     description: String!
     value: Int!
@@ -11,14 +12,25 @@ type Car {
     value: Int!
 }
 type Mutation {
-    createCar(input: CarInput): Car
-    updateCar(id: Int!, input: CarInput): Car
+    createCar(input: CarInput): Car!
+    updateCar(id: Int!, input: CarInput): Car!
 }
 type Query {
-    getCar(id: Int): Car
-    getCars: [Car]
+    getCar(id: Int): Car!
+    getCars: [Car!]!
+}
+type CarSubscriptionMutation {
+    mutation: String!
+    data: Car!
+}
+
+type CarSubscriptionQuery {
+    query: String!
+    data: [Car!]!
 }
 type Subscription {
-    getCars: [Car]
+    car: CarSubscriptionMutation!
+    getCars: CarSubscriptionQuery
 }
+
 `;

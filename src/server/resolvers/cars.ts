@@ -1,5 +1,6 @@
-import { default as Cars } from "../data/jsonData.json"
-
+import * as Cars from "../data/jsonData.json"
+import { PubSub } from 'graphql-yoga'
+const pubsub = new PubSub()
 export const resolvers = {
     Query: {
         getCar(parent: any, args: any) {
@@ -13,22 +14,55 @@ export const resolvers = {
                     car = Cars[i];
                 }
             }
-
             if (car.id == id) {
                 return car;
             } else {
                 throw ("No Car is found")
             }
         },
-        getCars() { return Cars }
+        getCars() { 
+            
+            pubsub.publish('getCars', {
+                getCars: {
+                    query: 'getCars',
+                    data: Cars
+                }
+            })
+            
+            return Cars 
+        
+        
+        
+        }
     },
-    Mutation:{
-        createCar(parent: any, args: any){
-            console.log("Output: ")
-            const car = { ...args.input};
-            console.log("Output: "+car.description)
-             Cars.push(car);
+    Mutation: {
+        createCar(parent: any, args: any) {
+            const car = { ...args.input };
+            if (car != undefined) {
+                Cars.push({ ...args.input });
+            }
+
+            pubsub.publish('car', {
+                car: {
+                    mutation: 'Added',
+                    data: car
+                }
+            })
+
             return car;
+         }
+    },
+         Subscription: {
+            car: {
+                subscribe(parent: any, args: any) {
+                    return pubsub.asyncIterator('car')
+                }
+
+            },
+            getCars:{
+                subscribe(parent: any, args: any) {
+                    return pubsub.asyncIterator('getCars')
+            }
         }
     }
 }

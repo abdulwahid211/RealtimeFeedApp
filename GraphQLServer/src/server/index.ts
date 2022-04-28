@@ -1,7 +1,7 @@
 
 import { GraphQLServer,PubSub   } from 'graphql-yoga'
- import { typeDefs } from "./schema/cars"
-import { resolvers } from "./resolvers/cars"
+ import { typeDefs } from "./schema/teams"
+import { resolvers } from "./resolvers/teams"
 import * as express from "express"
 const PORT = 2000;
 const pubsub = new PubSub();

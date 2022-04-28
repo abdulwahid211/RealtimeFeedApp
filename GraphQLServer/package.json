@@ -1,0 +1,50 @@
+{
+    "name": "realtimefeedapp",
+    "version": "1.0.0",
+    "description": "+ 1 week GraphQL, React and PostgreSQL",
+    "main": "index.js",
+    "scripts": {
+        "build": "webpack -w",
+        "server": "nodemon dist/server.js",
+        "relay": "relay-compiler"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/abdulwahid211/RealtimeFeedApp.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/abdulwahid211/RealtimeFeedApp/issues"
+    },
+    "homepage": "https://github.com/abdulwahid211/RealtimeFeedApp#readme",
+    "dependencies": {
+        "@types/express": "^4.17.13",
+        "@types/react": "^17.0.22",
+        "@types/react-dom": "^17.0.9",
+        "babel-loader": "^8.2.5",
+        "bootstrap": "^5.1.1",
+        "class-validator": "^0.13.2",
+        "cors": "^2.8.5",
+        "css-loader": "^6.3.0",
+        "express": "^4.17.3",
+        "graphql-yoga": "^1.16.7",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "sass": "^1.41.1",
+        "sass-loader": "^12.1.0",
+        "sequelize": "^6.17.0",
+        "style-loader": "^3.2.1",
+        "ts-loader": "^9.2.5",
+        "typescript": "^4.4.3",
+        "webpack": "^5.53.0",
+        "webpack-cli": "^4.8.0",
+        "webpack-node-externals": "^3.0.0"
+    },
+    "devDependencies": {
+        "babel-plugin-relay": "^13.2.0",
+        "nodemon": "^2.0.12",
+        "npm-run-all": "^4.1.5",
+        "relay-compiler": "^13.2.0"
+    }
+}

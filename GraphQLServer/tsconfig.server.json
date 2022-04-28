@@ -9,6 +9,7 @@
       "moduleResolution": "node",
       "resolveJsonModule": true,
       "allowSyntheticDefaultImports": true,
+      "suppressImplicitAnyIndexErrors": true,
       "lib": [
           "es2017"
       ],

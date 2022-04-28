@@ -20,19 +20,17 @@ export const resolvers = {
                 throw ("No Car is found")
             }
         },
-        getCars() { 
-            
+        getCars() {
+
             pubsub.publish('getCars', {
                 getCars: {
                     query: 'getCars',
                     data: Cars
                 }
             })
-            
-            return Cars 
-        
-        
-        
+
+            return Cars
+
         }
     },
     Mutation: {
@@ -50,18 +48,38 @@ export const resolvers = {
             })
 
             return car;
-         }
-    },
-         Subscription: {
-            car: {
-                subscribe(parent: any, args: any) {
-                    return pubsub.asyncIterator('car')
-                }
+        },
+        updateCar(parent: any, args: any) {
+            const car = { ...args.input };
 
-            },
-            getCars:{
-                subscribe(parent: any, args: any) {
-                    return pubsub.asyncIterator('getCars')
+            for (var i = 0; i < Cars.length; i++) {
+                if (car.id == Cars[i].id) {
+                    Cars[i].name = car.name;
+                    Cars[i].description = car.description;
+                    Cars[i].value = car.value;
+                }
+            }
+
+            pubsub.publish('car', {
+                car: {
+                    mutation: 'Updated',
+                    data: car
+                }
+            })
+
+            return car;
+        }
+    },
+    Subscription: {
+        car: {
+            subscribe(parent: any, args: any) {
+                return pubsub.asyncIterator('car')
+            }
+
+        },
+        getCars: {
+            subscribe(parent: any, args: any) {
+                return pubsub.asyncIterator('getCars')
             }
         }
     }

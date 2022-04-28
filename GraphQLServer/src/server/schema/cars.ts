@@ -13,7 +13,7 @@ type Car {
 }
 type Mutation {
     createCar(input: CarInput): Car!
-    updateCar(id: Int!, input: CarInput): Car!
+    updateCar(input: CarInput): Car!
 }
 type Query {
     getCar(id: Int): Car!

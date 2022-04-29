@@ -51,7 +51,7 @@ export const resolvers = {
             const Team = { ...args.input };
 
             for (var i = 0; i < Teams.length; i++) {
-                if (Team.name == Teams[i].name) {
+                if (Team.id == Teams[i].id) {
                     Teams[i].name = Team.name;
                     Teams[i].points = Team.points;
                 }

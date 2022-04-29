@@ -1,9 +1,6 @@
 import ReactDOM from "react-dom";
-import { split, HttpLink } from '@apollo/client';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { createClient, } from 'graphql-ws';
 import { WebSocketLink } from "@apollo/client/link/ws";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 const link = new WebSocketLink({
   uri: `ws://localhost:2000/`,
@@ -16,7 +13,7 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  useQuery, useSubscription,
+   useSubscription,
   gql
 } from "@apollo/client";
 
@@ -26,9 +23,9 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
-const COMMENTS_SUBSCRIPTION = gql`
+const SUBSCRIPTION = gql`
   subscription {
-    getAllTeams {
+    Team {
       results{
             id,name,points
            }
@@ -36,84 +33,44 @@ const COMMENTS_SUBSCRIPTION = gql`
   }
 `;
 
-const  LatestComment = () => {
+
+const LiveFeed = () => {
   const { data, loading, error } = useSubscription(
-    COMMENTS_SUBSCRIPTION);
+    SUBSCRIPTION);
+
+  const columns: GridColDef[] = [
+    { field: 'name', headerName: 'Teams', width: 150 },
+    { field: 'points', headerName: 'Points', width: 150 },
+  ];
   if (!data) {
     return null;
   }
-  const results = data.getAllTeams.results;
+  const results = data.Team.results;
 
-  return   <ul>
-  {results.map(({name, id,points}:any) => (
-        <li key={id}>{name} Points {}</li>
-      ))}
-
-  </ul>
-  ;
+  return (
+    <div style={{ height: 700, width: '100%' }}>
+      <DataGrid rows={results} columns={columns} initialState={{
+        sorting: {
+          sortModel: [{ field: 'points', sort: 'desc' }],
+        },
+      }} />
+    </div>
+  );
 }
 
 
-
-// client
-// .query({
-//   query: gql`
-//     query {
-//       getAllTeams {
-//         id,name
-//       }
-//     }
-//   `
-// })
-// .then(result => console.log("Output:  "+result.data.getAllTeams[1].name));
-
-const DATA_SHIT = gql`
-  query {
-    getAllTeams {
-      id,name
-    }
-  }
-`;
-
-
-function App() {
-
-  const { loading, error, data } = useQuery(DATA_SHIT);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :(</p>;
-
-  // data..map(({ id, name }) => (
-  //   <div key={id}>
-  //     <p>
-  //       Id {id}: {name}
-  //     </p>
-  //   </div>
-  // ));
-
+function Table() {
   return (
     <div>
-      <h2>My first Apollo app 🚀</h2>
-      {
-  data.getAllTeams.map(({ id, name }) => (
-    <div key={id}>
-      <p>
-        Id {id}: {name}
-      </p>
-    </div>
-  ))
-
-
-
-      }
-      <LatestComment />
+      <h2>⚽ Live Premier League Table ⚽ </h2>
+      <LiveFeed />
     </div>
   );
 }
 
 
 ReactDOM.render(<ApolloProvider client={client}>
-  <App />
+  <Table />
 </ApolloProvider>,
   document.getElementById('root'),
 );
